@@ -1,6 +1,5 @@
 import os
 import pygame
-from bullet import Bullet
 from player import Player
 from player import Wall
 from ai_handler import AIHANDLER
@@ -18,7 +17,8 @@ bullet_list = pygame.sprite.Group()
 # create players and add them to the game
 red_player = Player(1)
 blue_player = Player(2)
-player_list.add(red_player, blue_player)
+health_pack = Player(3)
+player_list.add(red_player, blue_player, health_pack)
 
 # Initialize pygame
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -39,7 +39,7 @@ solid_object = pygame.sprite.Group(player_list,wall_list)
 Player.set_objects(solid_object)
 
 # This object holds all of our AI code
-ai = AIHANDLER(red_player, blue_player)
+ai = AIHANDLER(red_player, blue_player, health_pack)
 
 # shoot 2 rounds per second
 pygame.time.set_timer(SHOOTING, 500)

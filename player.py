@@ -1,5 +1,5 @@
 import pygame
-from bullet import Bullet
+from random import randint
 
 wall_list = pygame.sprite.Group()
 
@@ -30,6 +30,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.x = 900
             self.rect.y = 256
             self.player_id = 2
+        elif player_id == 3:
+            self.image.fill((255, 255, 255))
+            self.rect.x = randint(20, 300)
+            self.rect.y = randint(20, 300)
 
         #game variables
         self.score = 0
@@ -40,6 +44,12 @@ class Player(pygame.sprite.Sprite):
         self.healthy = 1.0
         self.is_healthy = True
         self.winning = False
+
+    def set_healthy(self):
+        self.healthy = self.hit_points / float(100)
+
+    def is_player_healthy(self):
+        return self.healthy > 0.5
 
 
     def move(self, dx, dy):
@@ -187,3 +197,53 @@ class Wall(pygame.sprite.Sprite):
 
         return wall_list
 
+
+green = (0,255,0)
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, direction):
+        # Call the parent class (Sprite) constructor
+        super(Bullet,self).__init__()
+
+        self.image = pygame.Surface([2, 6])
+        self.image.fill(green)
+        # for shooting directions: 1 = up, 2 = down, 3 = left, 4 = right
+        self.direction = direction
+
+        self.rect = pygame.Rect(0, 0, 2, 6)
+
+    def move_up(self):
+        self.rect.y -= 5
+
+    def move_down(self):
+        self.rect.y += 5
+
+    def move_left(self):
+        self.rect.x -= 5
+
+    def move_right(self):
+        self.rect.x += 5
+
+
+    def update(self, wall_list):
+
+        movement = {1 : self.move_up, 2 : self.move_down, 3 : self.move_left, 4 : self.move_right}
+
+        movement[self.direction]()
+
+        return self.check_collision(wall_list)
+
+    def check_collision(self, wall_list):
+
+        for wall in wall_list:
+            if self.rect.colliderect(wall):
+                # print("Bullet colliding")
+                if isinstance(wall, Player):
+                    wall.hit_points -= 10
+                    wall.set_healthy()
+                    print(wall.hit_points)
+                    print(wall.healthy)
+                    print(wall.is_player_healthy())
+                return True
+
+        return False
