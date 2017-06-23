@@ -18,6 +18,11 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface([16, 16])
         self.rect = pygame.Rect(0, 0, 16, 16)
 
+        # new movement variables
+        self.previous_x = self.rect.x
+        self.current_x = self.rect.x
+
+
 
         # set the color and position of each player
         if player_id == 1:
@@ -66,18 +71,27 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
+        #set the variables to check if we are moving
+        self.current_x = self.rect.x
+
 
         # If you collide with an object, move out based on velocity
         for wall in wall_list:
             if self.rect.colliderect(wall.rect):
                 if dx > 0:  # Moving right; Hit the left side of the wall
                     self.rect.right = wall.rect.left
+                    self.previous_x = self.current_x
                 elif dx < 0:  # Moving left; Hit the right side of the wall
                     self.rect.left = wall.rect.right
+                    self.previous_x = self.current_x
                 elif dy > 0:  # Moving down; Hit the top side of the wall
                     self.rect.bottom = wall.rect.top
                 elif dy < 0:  # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
+
+        if self.previous_x == self.current_x:
+            self.rect.y -= 4
+            # print("going up")
 
 
 
@@ -241,9 +255,9 @@ class Bullet(pygame.sprite.Sprite):
                 if isinstance(wall, Player):
                     wall.hit_points -= 10
                     wall.set_healthy()
-                    print(wall.hit_points)
-                    print(wall.healthy)
-                    print(wall.is_player_healthy())
+                    # print(wall.hit_points)
+                    # print(wall.healthy)
+                    # print(wall.is_player_healthy())
                 return True
 
         return False

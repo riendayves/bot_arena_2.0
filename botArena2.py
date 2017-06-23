@@ -58,7 +58,6 @@ while game_running:
             game_running = False
         if e.type == pygame.MOUSEBUTTONDOWN:
             bullet_list.add(blue_player.shoot_left())
-            print("x: " + str(blue_player.rect.x) + "Y: " + str(blue_player.rect.y))
         if e.type == SHOOTING and ai.current_action == ai.SHOOTING:
             bullet_list.add(ai.shoot_bullets())
 
@@ -66,6 +65,8 @@ while game_running:
 
     # handle ai actions
     ai.run_battle()
+
+
 
 
     # Blue Player Movement

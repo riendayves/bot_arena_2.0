@@ -1,5 +1,4 @@
 import pygame
-from pathfinder import Graph, AStar
 
 # for position checking
 MARGIN = 48
@@ -11,10 +10,6 @@ class AIHANDLER:
         self.blue_player = blue_player
         self.health_pack = health_pack
 
-        #initialize our nodes for pathfinding
-        self.graph = Graph()
-        #create A-star object
-        self.a_star = AStar(self.graph.list)
 
         # the neural_net variable will test a primitive neural network, for now it is null
         self.neural_net = None
@@ -53,31 +48,29 @@ class AIHANDLER:
             self.run_away()
             # print(self.current_action)
 
+
     def determine_movement(self):
-        # length of the graph
-        length = len(self.graph.list) - 1
-        self.a_star.find_path(self.a_star.unvisited[0], self.a_star.unvisited[length])
-        pass
-            # place the player's coordinates into variables for checking
-            # red_coordinate = ((self.red_player.rect.centerx), (self.red_player.rect.centery))
-            #
-            # blue_coordinate = ((self.blue_player.rect.centerx), (self.blue_player.rect.centery))
-            #
-            #
-            #
-            # # should we chase the player? if we are too far away then we will chase
-            # if red_coordinate[0] <= blue_coordinate[0] - 100 and self.red_player.is_healthy:
-            #     self.red_player.chase_opponent(self.blue_player)
-            #     self.current_action = self.CHASING
-            #
-            # elif red_coordinate[0] >= blue_coordinate[0] + 100 and self.red_player.is_healthy:
-            #     self.red_player.chase_opponent(self.blue_player)
-            #     self.current_action = self.CHASING
-            # # else we are in range to begin shooting
-            # else:
-            #     self.current_action = self.SHOOTING
-            #
-            #     # print(self.current_action)
+
+        # place the player's coordinates into variables for checking
+        red_coordinate = ((self.red_player.rect.centerx), (self.red_player.rect.centery))
+
+        blue_coordinate = ((self.blue_player.rect.centerx), (self.blue_player.rect.centery))
+
+
+
+        # should we chase the player? if we are too far away then we will chase
+        if red_coordinate[0] <= blue_coordinate[0] - 100 and self.red_player.is_healthy:
+            self.red_player.chase_opponent(self.blue_player)
+            self.current_action = self.CHASING
+
+        elif red_coordinate[0] >= blue_coordinate[0] + 100 and self.red_player.is_healthy:
+            self.red_player.chase_opponent(self.blue_player)
+            self.current_action = self.CHASING
+        # else we are in range to begin shooting
+        else:
+            self.current_action = self.SHOOTING
+
+            # print(self.current_action)
 
     def shoot_bullets(self):
         bullet_List = pygame.sprite.Group()
@@ -139,8 +132,24 @@ class AIHANDLER:
         elif red_coordinate[1] != health_pack_coordinate[1]:
             self.red_player.chase_opponent(self.health_pack)
         if self.red_player.rect.colliderect(self.health_pack):
-            self.current_action = self.RESTING
+            self.red_player.hit_points += 100
+            self.red_player.set_healthy()
             print("picked up health pack")
+
+        if self.red_player.is_player_healthy:
+            self.current_action = self.CHASING
 
 
         return False
+
+
+
+
+    def getAction(self):
+        new_action = input("ENTER COMMAND: ")
+
+        if new_action.upper() == "CHASE":
+            self.current_action = self.CHASING
+
+
+
