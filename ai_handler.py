@@ -1,4 +1,5 @@
 import pygame
+from pathfinder import Graph, AStar
 
 # for position checking
 MARGIN = 48
@@ -31,6 +32,11 @@ class AIHANDLER:
 
         self.current_position = 2
 
+        #set up our graph to initialize our nodes
+        self.graph = Graph()
+        self.a_star = AStar(self.graph.list)
+        self.a_star.find_path(self.graph.list[9])
+
     def run_battle(self):
 
         if self.current_action == self.RESTING:
@@ -51,24 +57,38 @@ class AIHANDLER:
 
     def determine_movement(self):
 
+        # if our path list is currently empty do nothing
+        if not self.a_star.final_path_list:
+            return
+
+        # find the next node in our path for the red_player to travel to
+        next_node_coordinate = ((self.a_star.final_path_list[0].x), (self.a_star.final_path_list[0].y))
         # place the player's coordinates into variables for checking
         red_coordinate = ((self.red_player.rect.centerx), (self.red_player.rect.centery))
 
-        blue_coordinate = ((self.blue_player.rect.centerx), (self.blue_player.rect.centery))
 
-
-
-        # should we chase the player? if we are too far away then we will chase
-        if red_coordinate[0] <= blue_coordinate[0] - 100 and self.red_player.is_healthy:
-            self.red_player.chase_opponent(self.blue_player)
-            self.current_action = self.CHASING
-
-        elif red_coordinate[0] >= blue_coordinate[0] + 100 and self.red_player.is_healthy:
-            self.red_player.chase_opponent(self.blue_player)
-            self.current_action = self.CHASING
-        # else we are in range to begin shooting
+        # until we reach the node keep moving towards it
+        if red_coordinate[0] != next_node_coordinate[0] or red_coordinate[1] != next_node_coordinate[1]:
+            self.red_player.move_to_next_node(next_node_coordinate)
         else:
-            self.current_action = self.SHOOTING
+            # then remove the current node so we can move toward the next node
+            self.a_star.final_path_list.pop(0)
+        #
+        # blue_coordinate = ((self.blue_player.rect.centerx), (self.blue_player.rect.centery))
+        #
+        #
+        #
+        # # should we chase the player? if we are too far away then we will chase
+        # if red_coordinate[0] <= blue_coordinate[0] - 100 and self.red_player.is_healthy:
+        #     self.red_player.chase_opponent(self.blue_player)
+        #     self.current_action = self.CHASING
+        #
+        # elif red_coordinate[0] >= blue_coordinate[0] + 100 and self.red_player.is_healthy:
+        #     self.red_player.chase_opponent(self.blue_player)
+        #     self.current_action = self.CHASING
+        # # else we are in range to begin shooting
+        # else:
+        #     self.current_action = self.SHOOTING
 
             # print(self.current_action)
 

@@ -93,9 +93,17 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= 4
             # print("going up")
 
+    def move_to_next_node(self, node_coordinate):
+        if node_coordinate[0] < self.rect.centerx:
+            self.move(-1, 0)
+        elif node_coordinate[0] > self.rect.centerx:
+            self.move(1, 0)
 
-
-
+        # up and down
+        if node_coordinate[1] < self.rect.centery:
+            self.move(0, -1)
+        elif node_coordinate[1] > self.rect.centery:
+            self.move(0, 1)
 
     def chase_opponent(self, opponent):
         # left and right movement
