@@ -35,7 +35,8 @@ class AIHANDLER:
         #set up our graph to initialize our nodes
         self.graph = Graph()
         self.a_star = AStar(self.graph.list)
-        self.a_star.find_path(self.graph.list[9])
+        # for now we hardcode the
+        self.a_star.find_path(self.graph.list[6])
 
     def run_battle(self):
 

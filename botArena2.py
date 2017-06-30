@@ -47,6 +47,9 @@ pygame.time.set_timer(SHOOTING, 500)
 
 game_running = True
 
+# subprogram = input("Which subprogram would you like to run? Enter P for pathfinding or S for state behavior")
+
+
 while game_running:
 
     clock.tick(60)

@@ -73,14 +73,17 @@ class AStar:
         self.end_node = None
         self.current_node = None
 
-    ''' The find_path method works in the following steps:
-    1. the first node in your open_list becomes your current node whose connections you are searching
-    2. remove the current node from the open_list and place it into the closed_list
-    3. for each connection to the current node, find the connected node in our unvisited list and determine it's F cost
-    4. once a node's F cost is determined, sort it into the open_list from lowest F cost to Highest
-    5. when all the current node's connections have been checked, repeat steps 1 - 4 until your end goal is reached
-    '''
+
     def find_path(self, end_node):
+        """ Implements the A* algorithm and creates a list of nodes from the starting node to the end node
+
+            The find_path method works in the following steps:
+            1. the first node in your open_list becomes your current node whose connections you are searching
+            2. remove the current node from the open_list and place it into the closed_list
+            3. for each connection to the current node, find the connected node in our unvisited list and determine it's F cost
+            4. once a node's F cost is determined, sort it into the open_list from lowest F cost to Highest
+            5. when all the current node's connections have been checked, repeat steps 1 - 4 until your end goal is reached
+            """
         # this will be false until we reach our goal
         path_found = False
 
@@ -150,6 +153,7 @@ class AStar:
 
 
     def transfer_open_node(self, unvisited_node):
+        """removes a node from the unvisited list and adds it to the open list"""
 
         # first remove the node from the unvisited list
         self.unvisited.remove(unvisited_node)
@@ -177,12 +181,18 @@ class AStar:
         if not inserted:
             self.open_list.append(unvisited_node)
 
-# we will use the pythagorean theorem to determine the g and h cost of our node
-# g = distance from the start node
-# h = guess of how far we are from the end node
-# f = total estimated cost
+
 def determine_cost(current_node, unvisited_node, end_node):
-    # determine the distance based on the difference in our x and y coordinates, then add on the distance we already are from the start node
+    """ uses the pythagorean theorem to determine the g and h cost of an unvisited node
+
+        we determine the distance by measuring a straight line from our current node to our starting and ending node
+
+        g = distance from the start node
+        h = guess of how far we are from the end node
+        f = total estimated cost
+        """
+    # determine the distance based on the difference in our x and y coordinates,
+    # then add on the distance we already are from the start node
     unvisited_node.g = (((current_node.x - unvisited_node.x) ** 2 + (current_node.y - unvisited_node.y) ** 2) ** .5) + current_node.g
 
     h = ((end_node.x - unvisited_node.x) ** 2 + (end_node.y - unvisited_node.y) ** 2) ** .5

@@ -177,21 +177,43 @@ class Wall(pygame.sprite.Sprite):
         # and so on...
 
         level = [
-            "LR                                                                                          L",
-            " S                                                                                           ",
-            "                                                                                             ",
-            "                                                                                             ",
-            "                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                    ",
-            "                               W                        W                                    ",
-            "                                                                                             ",
-            "                                                                                             ",
-            "                                            B                                                ",
-            "                                                                                             ",
-            "  S                                                                                          ",
-            "                               W                        W                                    ",
-            "                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                    ",
-            " V                                                                                          ",
-            " R ",
+            "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                  W",
+            "W                               W                        W                                  W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                               W                        W                                  W",
+            "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                  W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W       N                 N                 N                      N              N         W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "W                                                                                           W",
+            "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         ]
 
         # Parse the level string above.
@@ -200,17 +222,6 @@ class Wall(pygame.sprite.Sprite):
             for col in row:
                 if col == "W":
                     wall = Wall(x, y, 12, 12)
-                if col == "R":
-                    wall = Wall(x, y, 1104, 12)
-                if col == "L":
-                    wall = Wall(x, y, 12, 444)
-                if col == "S":
-                    y += 72
-                    continue
-                if col == "V":
-                    y += 120
-                if col == "B":
-                    wall = Wall(x, y, 12, 84)
                 wall_list.add(wall)
 
                 x += 12
