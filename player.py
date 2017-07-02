@@ -1,9 +1,11 @@
 import pygame
 from random import randint
+from pathfinder import Graph
 
 wall_list = pygame.sprite.Group()
 
-
+node_step = 5
+brick_size = 16
 
 class Player(pygame.sprite.Sprite):
 
@@ -27,13 +29,13 @@ class Player(pygame.sprite.Sprite):
         # set the color and position of each player
         if player_id == 1:
             self.image.fill((255, 0, 0))
-            self.rect.x = 100
-            self.rect.y = 256
+            self.rect.x = 24
+            self.rect.y = 24
             self.player_id = 1
         elif player_id == 2:
             self.image.fill((0, 0, 255))
-            self.rect.x = 900
-            self.rect.y = 256
+            self.rect.x = 600
+            self.rect.y = 410
             self.player_id = 2
         elif player_id == 3:
             self.image.fill((255, 255, 255))
@@ -89,20 +91,20 @@ class Player(pygame.sprite.Sprite):
                 elif dy < 0:  # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
 
-        if self.previous_x == self.current_x:
-            self.rect.y -= 4
-            # print("going up")
+        # if self.previous_x == self.current_x:
+        #     self.rect.y -= 4
+        #     # print("going up")
 
     def move_to_next_node(self, node_coordinate):
         if node_coordinate[0] < self.rect.centerx:
             self.move(-1, 0)
-        elif node_coordinate[0] > self.rect.centerx:
+        if node_coordinate[0] > self.rect.centerx:
             self.move(1, 0)
 
         # up and down
         if node_coordinate[1] < self.rect.centery:
             self.move(0, -1)
-        elif node_coordinate[1] > self.rect.centery:
+        if node_coordinate[1] > self.rect.centery:
             self.move(0, 1)
 
     def chase_opponent(self, opponent):
@@ -165,11 +167,11 @@ class Wall(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, length, width)
         self.image.fill((255, 255, 255))
 
+
         self.rect.x = x
         self.rect.y = y
-
     @staticmethod
-    def build_walls():
+    def build_map():
         # Holds the arena layout using an array of strings.
         # W = 12 X 12 brick
         # S = spacing, moves map down by 24 pixels
@@ -178,57 +180,79 @@ class Wall(pygame.sprite.Sprite):
 
         level = [
             "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
+            "W                                           W                                               W",
             "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                  W",
-            "W                               W                        W                                  W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                               W                        W                                  W",
-            "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                  W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W       N                 N                 N                      N              N         W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
-            "W                                                                                           W",
+            "W                                                        W                                  W",
+            "W                                                        W                                  W",
+            "W                                                        W                                  W",
+            "W                                                        W                                  W",
+            "W                                                        W                                  W",
+            "W               WWWWWWWWWWWWW                  WWWWWWWWWWWWWWWWWWWWWWWWWW                   W",
+            "W               W                                                                           W",
+            "W               W                                                                           W",
+            "W               W                                                                           W",
+            "W        WWWWWWWW                                                                           W",
+            "W               W                                                            WWWWW          W",
+            "W               W               WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW             W   W          W",
+            "W               WWWWWWWWWWWWWWWWW                              W             W   W          W",
+            "W                                                              W             W   W          W",
+            "W                                                              W             W   W          W",
+            "W                                                              W             W   W          W",
+            "W                                            WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   W          W",
+            "WWWWWWWWWWWWWWWWW                            W                                              W",
+            "W               W                            W                                              W",
+            "W               W                            W                                              W",
+            "W               W                            W                                              W",
+            "W               W                            W                                              W",
+            "W                             WWWWWWWWWWWWWWWW                    WWWWWWWWWWW               W",
+            "W                             W                                             W               W",
+            "W                             W                                             W               W",
             "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         ]
+        # level = [
+        #     "WW  WWWWWWWWWWWWWWWW",
+        #     "W                  W",
+        #     "W         WWWWWW   W",
+        #     "W   WWWW       W   W",
+        #     "W   W        WWWW  W",
+        #     "W WWW  WWWW        W",
+        #     "W   W     W W      W",
+        #     "W   W     W   WWW WW",
+        #     "W   WWW WWW   W W  W",
+        #     "W     W   W   W W  W",
+        #     "WWW   W   WWWWW W  W",
+        #     "W W      WW        W",
+        #     "W W   WWWW   WWW   W",
+        #     "W     W        W   W",
+        #     "WWWWWWWWWWWWWWWWWWWW",
+        # ]
+
+        blueprint = insert_nodes(level, node_step)
+        blue_print = Graph(blueprint, node_step)
+        node_graph = blue_print.list
 
         # Parse the level string above.
-        x = y = 0
-        for row in level:
+        x = y = node_counter = 0
+        for row in blueprint:
             for col in row:
                 if col == "W":
                     wall = Wall(x, y, 12, 12)
-                wall_list.add(wall)
+                    wall_list.add(wall)
 
                 x += 12
             y += 12
             x = 0
 
-        return wall_list
+        return node_graph
+
 
 
 green = (0,255,0)
@@ -280,3 +304,26 @@ class Bullet(pygame.sprite.Sprite):
                 return True
 
         return False
+
+def insert_nodes(blueprint, step):
+    node_blueprint = []
+    for y, line in enumerate(blueprint):
+        if y % step == 0:
+            letter_list = []
+            for x, letter in enumerate(line):
+
+                if x % step == 0 and letter != 'W':
+                    # print('x:'+ str(x))
+                    # print('y:' + str(y))
+                    # print('letter before:' + str(letter))
+                    letter = 'N'
+                    # print('letter after:' + str(letter))
+                letter_list.append(letter)
+            node_line = ''.join(letter_list)
+            node_blueprint.append(node_line)
+        else:
+            node_blueprint.append(line)
+    return node_blueprint
+
+
+

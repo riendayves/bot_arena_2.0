@@ -1,12 +1,13 @@
 import pygame
 from pathfinder import Graph, AStar
+import player
 
 # for position checking
 MARGIN = 48
 
 
 class AIHANDLER:
-    def __init__(self, red_player, blue_player, health_pack):
+    def __init__(self, red_player, blue_player, health_pack, node_graph):
         self.red_player = red_player
         self.blue_player = blue_player
         self.health_pack = health_pack
@@ -32,11 +33,10 @@ class AIHANDLER:
 
         self.current_position = 2
 
-        #set up our graph to initialize our nodes
-        self.graph = Graph()
-        self.a_star = AStar(self.graph.list)
-        # for now we hardcode the
-        self.a_star.find_path(self.graph.list[6])
+        self.node_graph = node_graph
+        self.a_star = AStar(self.node_graph)
+        # for now we hardcode the starting node and the end node
+        self.a_star.find_path(self.node_graph[108])
 
     def run_battle(self):
 
@@ -57,7 +57,7 @@ class AIHANDLER:
 
 
     def determine_movement(self):
-
+        pass
         # if our path list is currently empty do nothing
         if not self.a_star.final_path_list:
             return
@@ -74,7 +74,7 @@ class AIHANDLER:
         else:
             # then remove the current node so we can move toward the next node
             self.a_star.final_path_list.pop(0)
-        #
+
         # blue_coordinate = ((self.blue_player.rect.centerx), (self.blue_player.rect.centery))
         #
         #

@@ -1,5 +1,6 @@
 import os
 import pygame
+import player
 from player import Player
 from player import Wall
 from ai_handler import AIHANDLER
@@ -31,15 +32,21 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("RED VS. BLUE!")
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-# holds the sprites that make up the wall
-wall_list = Wall.build_walls()
+
+# holds the sprites that make up the wall and creates the nodes for our graph
+node_graph = []
+node_graph = Wall.build_map()
+wall_list = player.wall_list
+print(len(node_graph))
+print(len(wall_list))
+# This object holds all of our AI code
+ai = AIHANDLER(red_player, blue_player, health_pack, node_graph)
 
 # this list is for any object that stops bullets
 solid_object = pygame.sprite.Group(player_list,wall_list)
 Player.set_objects(solid_object)
 
-# This object holds all of our AI code
-ai = AIHANDLER(red_player, blue_player, health_pack)
+
 
 # shoot 2 rounds per second
 pygame.time.set_timer(SHOOTING, 500)

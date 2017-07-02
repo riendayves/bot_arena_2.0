@@ -1,34 +1,94 @@
 import os
-
+screen_width = 1116
+screen_height = 444
 
 class Graph:
 
-    def __init__(self):
+    def __init__(self, blueprint, step):
         # get the names from file
-
-        #get x co-ord
+        self.map = blueprint
+        self.step = step
+        # get x co-ord
         self.list = []
-        self.name = ""
-        self.connections = ""
-        self.x = 0
-        self.y = 0
 
-        self.initializeNodes()
+        self.initialize_nodes()
+        self.initialize_connections()
 
-    def initializeNodes(self):
-        nodeFile = open("nodelist.txt", 'r');
+    def initialize_nodes(self):
+        x = y = matrix_position_counter =  0
+        for row in self.map:
+            for column in row:
+                if column == "N":
+                    node = Node(matrix_position_counter, x, y, None)
+                    #add the new node to our list
+                    self.list.append(node)
+                    print("adding node " + str(node.name) + " x: " + str(node.x) + " y: " + str(node.y))
+                x += 12
+                matrix_position_counter += 1
+            y += 12
+            x = 0
 
-        while (nodeFile.readline()):
-            self.name = nodeFile.readline().rstrip('\n')
-            print(self.name)
-            self.x = int(nodeFile.readline().rstrip())
-            print(self.x)
-            self.y = int(nodeFile.readline().rstrip())
-            print(self.y)
-            self.connections = nodeFile.readline()
-            self.list.append(Node(self.name, self.x, self.y, self.connections))
+    def initialize_connections(self):
+        lol_blueprint = convert_to_lol(self.map)
+        # look up
+        # look right
+        # look down
+        # look left
+        for node in self.list:
+            x = node.x / 12
+            y = node.y / 12
+            direction = 1
+            while direction <= 8:
+                counter = 1
+                is_clear = True
 
-class Node:
+                if direction == 1:
+                    dy = -1
+                    dx = 0
+                elif direction == 2:
+                    dy = -1
+                    dx = 1
+                elif direction == 3:
+                    dy = 0
+                    dx = 1
+                elif direction == 4:
+                    dy = 1
+                    dx = 1
+                elif direction == 5:
+                    dy = 1
+                    dx = 0
+                elif direction == 6:
+                    dy = 1
+                    dx = -1
+                elif direction == 7:
+                    dy = 0
+                    dx = -1
+                elif direction == 8:
+                    dy = -1
+                    dx = -1
+
+                #these variables help us increment through the matrix
+                inc_dy = dy
+                inc_dx = dx
+                while counter <= self.step:
+                    if lol_blueprint[y + dy][x + dx] != 'W':
+                        print(lol_blueprint[y + dy][x + dx])
+                        if counter != self.step:
+                            dy += inc_dy
+                            dx += inc_dx
+                        counter += 1
+                    else:
+                        is_clear = False
+                        break
+                if is_clear:
+                    # node_connection_number = (y - self.step) * (screen_width / 12) + x
+                    node_connection_number = (y + dy) * (screen_width / 12) + ( x + dx )
+                    node.connections.append(node_connection_number)
+                direction += 1
+
+
+class Node():
+
      def __init__(self, name, x, y, connections):
          self.name = name
          self.x = x
@@ -42,17 +102,12 @@ class Node:
          self.f = 0
          self.g = 0
 
+         if(connections == None):
+             return
+
          for i in range(len(connections) - 1):
              self.connections += [connections[i]]
              print("connection: " + connections[i])
-
-
-class Connection:
-    def __init__(self, name, weight):
-        self.name = name
-        self.weight = weight
-
-
 
 
 
@@ -68,8 +123,8 @@ class AStar:
         #the list of all the nodes we start with in our graph
         self.unvisited = list
 
-        # for now, our start node is hard-coded to be node "A"
-        self.start_node = self.unvisited[0]
+        # for now, our start node is hard-coded to be the top right node in our list
+        self.start_node = self.unvisited[19]
         self.end_node = None
         self.current_node = None
 
@@ -110,7 +165,7 @@ class AStar:
                      if unvisited_node.name == connection:
                         # once we find a match, we pass it in to our determine_cost method to find its f cost
                          determine_cost(self.current_node, unvisited_node, end_node)
-                         print("unvisited Node " + unvisited_node.name + " f cost: " + str(unvisited_node.f))
+                         print("unvisited Node " + str(unvisited_node.name) + " f cost: " + str(unvisited_node.f))
                         # now move the node from our unvisited list to our open list since we know its f cost
                          self.transfer_open_node(unvisited_node)
                          # check to see if we have reached our goal node
@@ -198,6 +253,16 @@ def determine_cost(current_node, unvisited_node, end_node):
     h = ((end_node.x - unvisited_node.x) ** 2 + (end_node.y - unvisited_node.y) ** 2) ** .5
 
     unvisited_node.f = unvisited_node.g + h
+
+def convert_to_lol(node_blueprint):
+    lol_blueprints = []
+    for y, line in enumerate(node_blueprint):
+        line_list = []
+        for x, letter in enumerate(line):
+            line_list.append(letter)
+        # print(line_list)
+        lol_blueprints.append(line_list)
+    return lol_blueprints
 
 
 
