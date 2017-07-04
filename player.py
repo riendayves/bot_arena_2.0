@@ -4,8 +4,8 @@ from pathfinder import Graph
 
 wall_list = pygame.sprite.Group()
 
-node_step = 5
-brick_size = 16
+node_step = 2
+GRID_INCREMENT = 12
 
 class Player(pygame.sprite.Sprite):
 
@@ -23,6 +23,8 @@ class Player(pygame.sprite.Sprite):
         # new movement variables
         self.previous_x = self.rect.x
         self.current_x = self.rect.x
+        self.previous_y = self.rect.y
+        self.current_y = self.rect.y
 
 
 
@@ -91,38 +93,34 @@ class Player(pygame.sprite.Sprite):
                 elif dy < 0:  # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
 
-        # if self.previous_x == self.current_x:
-        #     self.rect.y -= 4
-        #     # print("going up")
-
     def move_to_next_node(self, node_coordinate):
         if node_coordinate[0] < self.rect.centerx:
-            self.move(-1, 0)
-        if node_coordinate[0] > self.rect.centerx:
-            self.move(1, 0)
+            self.move(-2, 0)
+        elif node_coordinate[0] > self.rect.centerx:
+            self.move(2, 0)
 
         # up and down
         if node_coordinate[1] < self.rect.centery:
-            self.move(0, -1)
-        if node_coordinate[1] > self.rect.centery:
-            self.move(0, 1)
+            self.move(0, -2)
+        elif node_coordinate[1] > self.rect.centery:
+            self.move(0, 2)
 
-    def chase_opponent(self, opponent):
+    def chase_object(self, target):
         # left and right movement
-        if opponent.rect.x < self.rect.x:
+        if target[0] < self.rect.x:
             self.move(-2,0)
-        elif opponent.rect.x > self.rect.x:
+        elif target[0] > self.rect.x:
             self.move(2, 0)
 
         #up and down
-        if opponent.rect.y < self.rect.y:
+        if target[1] < self.rect.y:
             self.move(0, -2)
-        elif opponent.rect.y > self.rect.y:
+        elif target[1] > self.rect.y:
             self.move(0, 2)
 
     def run_away(self, coordinate):
         self.move(-(coordinate[0] % 6), -(coordinate[1] % 4))
-        print(-coordinate[0] % 4)
+        # print(-coordinate[0] % 4)
 
     def shoot_up(self):
         bullet = Bullet(1)
@@ -182,31 +180,31 @@ class Wall(pygame.sprite.Sprite):
             "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
             "W                                           W                                               W",
             "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                                           W                                               W",
-            "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                                  W",
-            "W                                                        W                                  W",
-            "W                                                        W                                  W",
-            "W                                                        W                                  W",
-            "W                                                        W                                  W",
-            "W                                                        W                                  W",
-            "W               WWWWWWWWWWWWW                  WWWWWWWWWWWWWWWWWWWWWWWWWW                   W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                                           W                                W              W",
+            "W                               WWWWWWWWWWWWWWWWWWWWWWWWWW                   W              W",
+            "W                                                                            W              W",
+            "W                                                             WWWWWWWWWWWWWWWW              W",
+            "W                                                             W                             W",
+            "W                                                             W                             W",
+            "W                                                             W                             W",
+            "W               WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW                   W",
             "W               W                                                                           W",
             "W               W                                                                           W",
-            "W               W                                                                           W",
-            "W        WWWWWWWW                                                                           W",
-            "W               W                                                            WWWWW          W",
-            "W               W               WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW             W   W          W",
-            "W               WWWWWWWWWWWWWWWWW                              W             W   W          W",
-            "W                                                              W             W   W          W",
-            "W                                                              W             W   W          W",
-            "W                                                              W             W   W          W",
-            "W                                            WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   W          W",
+            "W               W                                              W                            W",
+            "W        WWWWWWWW                                              W                            W",
+            "W               W                                              W              WWWWW         W",
+            "W               W               WWWWW    WWWWWWWWWWWWWWWWWWWWWWW                 W          W",
+            "W               WWWWWWWWWWWWWWWWW                              W                 WWWWWWWWWWWW",
+            "W                                                              W                 W          W",
+            "W                                                              W                 W          W",
+            "W               W                                              W                 W          W",
+            "W               W                            WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW   W          W",
             "WWWWWWWWWWWWWWWWW                            W                                              W",
             "W               W                            W                                              W",
             "W               W                            W                                              W",
@@ -217,38 +215,20 @@ class Wall(pygame.sprite.Sprite):
             "W                             W                                             W               W",
             "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
         ]
-        # level = [
-        #     "WW  WWWWWWWWWWWWWWWW",
-        #     "W                  W",
-        #     "W         WWWWWW   W",
-        #     "W   WWWW       W   W",
-        #     "W   W        WWWW  W",
-        #     "W WWW  WWWW        W",
-        #     "W   W     W W      W",
-        #     "W   W     W   WWW WW",
-        #     "W   WWW WWW   W W  W",
-        #     "W     W   W   W W  W",
-        #     "WWW   W   WWWWW W  W",
-        #     "W W      WW        W",
-        #     "W W   WWWW   WWW   W",
-        #     "W     W        W   W",
-        #     "WWWWWWWWWWWWWWWWWWWW",
-        # ]
-
         blueprint = insert_nodes(level, node_step)
-        blue_print = Graph(blueprint, node_step)
-        node_graph = blue_print.list
+        map_graph = Graph(blueprint, node_step)
+        node_graph = map_graph.node_list
 
         # Parse the level string above.
         x = y = node_counter = 0
         for row in blueprint:
             for col in row:
                 if col == "W":
-                    wall = Wall(x, y, 12, 12)
+                    wall = Wall(x, y, 4, 4)
                     wall_list.add(wall)
 
-                x += 12
-            y += 12
+                x += GRID_INCREMENT
+            y += GRID_INCREMENT
             x = 0
 
         return node_graph
@@ -267,19 +247,19 @@ class Bullet(pygame.sprite.Sprite):
         # for shooting directions: 1 = up, 2 = down, 3 = left, 4 = right
         self.direction = direction
 
-        self.rect = pygame.Rect(0, 0, 2, 6)
+        self.rect = pygame.Rect(0, 0, 6, 2)
 
     def move_up(self):
-        self.rect.y -= 5
+        self.rect.y -= 8
 
     def move_down(self):
-        self.rect.y += 5
+        self.rect.y += 8
 
     def move_left(self):
-        self.rect.x -= 5
+        self.rect.x -= 8
 
     def move_right(self):
-        self.rect.x += 5
+        self.rect.x += 8
 
 
     def update(self, wall_list):
@@ -313,11 +293,7 @@ def insert_nodes(blueprint, step):
             for x, letter in enumerate(line):
 
                 if x % step == 0 and letter != 'W':
-                    # print('x:'+ str(x))
-                    # print('y:' + str(y))
-                    # print('letter before:' + str(letter))
                     letter = 'N'
-                    # print('letter after:' + str(letter))
                 letter_list.append(letter)
             node_line = ''.join(letter_list)
             node_blueprint.append(node_line)

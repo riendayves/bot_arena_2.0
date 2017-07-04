@@ -1,6 +1,7 @@
 import os
 screen_width = 1116
 screen_height = 444
+GRID_INCREMENT = 12
 
 class Graph:
 
@@ -9,7 +10,7 @@ class Graph:
         self.map = blueprint
         self.step = step
         # get x co-ord
-        self.list = []
+        self.node_list = []
 
         self.initialize_nodes()
         self.initialize_connections()
@@ -21,8 +22,8 @@ class Graph:
                 if column == "N":
                     node = Node(matrix_position_counter, x, y, None)
                     #add the new node to our list
-                    self.list.append(node)
-                    print("adding node " + str(node.name) + " x: " + str(node.x) + " y: " + str(node.y))
+                    self.node_list.append(node)
+                    # print("adding node " + str(node.name) + " x: " + str(node.x) + " y: " + str(node.y))
                 x += 12
                 matrix_position_counter += 1
             y += 12
@@ -30,18 +31,16 @@ class Graph:
 
     def initialize_connections(self):
         lol_blueprint = convert_to_lol(self.map)
-        # look up
-        # look right
-        # look down
-        # look left
-        for node in self.list:
-            x = node.x / 12
-            y = node.y / 12
+        # for each node we check 8 directions (Top, Top Right, Right, etc.) for neighboring nodes to connect to.
+        # if the node exists in that position we create a connection to it
+        for node in self.node_list:
+            x = node.x / GRID_INCREMENT
+            y = node.y / GRID_INCREMENT
             direction = 1
             while direction <= 8:
                 counter = 1
                 is_clear = True
-
+                # Direction starts at top above the current node and moves in a clockwise direction
                 if direction == 1:
                     dy = -1
                     dx = 0
@@ -70,9 +69,11 @@ class Graph:
                 #these variables help us increment through the matrix
                 inc_dy = dy
                 inc_dx = dx
+                # we check our matrix for any wall objects ('W') that exist between our node and the neighboring
+                # node. If there are no walls in between, then the path is clear and we can add the node to our list of
+                # connections.
                 while counter <= self.step:
                     if lol_blueprint[y + dy][x + dx] != 'W':
-                        print(lol_blueprint[y + dy][x + dx])
                         if counter != self.step:
                             dy += inc_dy
                             dx += inc_dx
@@ -81,13 +82,12 @@ class Graph:
                         is_clear = False
                         break
                 if is_clear:
-                    # node_connection_number = (y - self.step) * (screen_width / 12) + x
-                    node_connection_number = (y + dy) * (screen_width / 12) + ( x + dx )
+                    node_connection_number = (y + dy) * (screen_width / GRID_INCREMENT) + ( x + dx )
                     node.connections.append(node_connection_number)
                 direction += 1
 
 
-class Node():
+class Node:
 
      def __init__(self, name, x, y, connections):
          self.name = name
@@ -112,7 +112,7 @@ class Node():
 
 
 class AStar:
-    def __init__(self, list):
+    def __init__(self):
         #nodes which we know the f cost for but have not yet searched
         self.open_list = []
         #nodes whose connections we have searched
@@ -121,10 +121,12 @@ class AStar:
         self.final_path_list = []
 
         #the list of all the nodes we start with in our graph
-        self.unvisited = list
+        self.unvisited = []
 
         # for now, our start node is hard-coded to be the top right node in our list
-        self.start_node = self.unvisited[19]
+        self.start_node = None
+        self.start_node_index = 2
+
         self.end_node = None
         self.current_node = None
 
@@ -139,10 +141,20 @@ class AStar:
             4. once a node's F cost is determined, sort it into the open_list from lowest F cost to Highest
             5. when all the current node's connections have been checked, repeat steps 1 - 4 until your end goal is reached
             """
+
+        # reset our lists as empty
+        self.open_list = []
+        self.closed_list = []
+        self.final_path_list = []
+
         # this will be false until we reach our goal
         path_found = False
 
-        # we start of having our start node be the current node and search it's connections
+        # pull the start node out of our list
+        self.start_node = self.unvisited[self.start_node_index]
+
+
+        # we set our start node as the current node and search it's connections
         self.closed_list.append(self.start_node)
         self.current_node = self.start_node
 
@@ -158,21 +170,27 @@ class AStar:
         self.unvisited.remove(self.start_node)
 
         while not path_found:
-            # loop through all of connections in our node object (ex. "B", "C", "D")
+            # loop through all of connections in our node object (ex. "190", "194", "198")
              for connection in self.current_node.connections:
+                 if path_found:
+                     break
                 # find that corresponding node in the list of our unvisited nodes
                  for unvisited_node in self.unvisited:
                      if unvisited_node.name == connection:
                         # once we find a match, we pass it in to our determine_cost method to find its f cost
                          determine_cost(self.current_node, unvisited_node, end_node)
-                         print("unvisited Node " + str(unvisited_node.name) + " f cost: " + str(unvisited_node.f))
-                        # now move the node from our unvisited list to our open list since we know its f cost
-                         self.transfer_open_node(unvisited_node)
-                         # check to see if we have reached our goal node
+                         # print("unvisited Node " + str(unvisited_node.name) + " f cost: " + str(unvisited_node.f))
+                        # check to see if we have reached our goal node
                          if self.end_node.name == unvisited_node.name:
                              self.end_node = unvisited_node
+                             self.end_node.previous_node = self.current_node
                              path_found = True
-                         break
+                             break
+                        # now move the node from our unvisited list to our open list since we know its f cost
+                         self.transfer_open_node(unvisited_node)
+
+
+
 
              if not path_found:
                 # now we move on the the first node found in our open list, this is the most likely candidate
@@ -183,9 +201,6 @@ class AStar:
         # Once we have found the path to the end node, will will place the linked nodes into a list to make it easier
         # to read our path. this setup is not necessary as we could just access the "previous_node" field directly, but
         # for this example we will organize it into a list
-
-        # our next start node will be our current end_node for the next time we find a path
-        next_start_node = self.end_node
         while self.end_node.name != self.start_node.name:
 
             # insert the current node of our chain into the front of the list
@@ -200,9 +215,11 @@ class AStar:
 
         # finally insert our start_node
         self.final_path_list.insert(0, self.start_node)
+        # delete our old lists to avoid memory leaks
+        del self.unvisited
+        del self.closed_list
+        del self.open_list
 
-        # set our new start node for the next time we find a path
-        self.start_node = next_start_node
 
 
 
