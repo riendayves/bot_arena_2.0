@@ -1,4 +1,5 @@
 import os
+from copy import copy
 screen_width = 1116
 screen_height = 444
 GRID_INCREMENT = 12
@@ -112,7 +113,7 @@ class Node:
 
 
 class AStar:
-    def __init__(self):
+    def __init__(self, node_list):
         #nodes which we know the f cost for but have not yet searched
         self.open_list = []
         #nodes whose connections we have searched
@@ -121,7 +122,7 @@ class AStar:
         self.final_path_list = []
 
         #the list of all the nodes we start with in our graph
-        self.unvisited = []
+        self.unvisited = node_list
 
         # for now, our start node is hard-coded to be the top right node in our list
         self.start_node = None
@@ -151,6 +152,7 @@ class AStar:
         path_found = False
 
         # pull the start node out of our list
+        original_node_list = copy(self.unvisited)
         self.start_node = self.unvisited[self.start_node_index]
 
 
@@ -216,9 +218,11 @@ class AStar:
         # finally insert our start_node
         self.final_path_list.insert(0, self.start_node)
         # delete our old lists to avoid memory leaks
-        del self.unvisited
-        del self.closed_list
-        del self.open_list
+        # del self.unvisited
+        # del self.closed_list
+        # del self.open_list
+
+        self.unvisited = original_node_list
 
 
 

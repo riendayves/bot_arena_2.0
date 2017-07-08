@@ -39,7 +39,7 @@ class AIHANDLER:
         self.current_position = 2
 
         self.node_graph = node_graph
-        self.a_star = AStar()
+        self.a_star = AStar(copy(self.node_graph))
 
         self.finding_path = False
         self.getting_coordinates = True
@@ -213,7 +213,7 @@ class AIHANDLER:
     def find_node(self, x_coordinate, y_coordinate):
         # we make a deep copy of our graph because we will be removing nodes when we run the A*
         # and we don't want it to change our original graph
-        self.a_star.unvisited = copy(self.node_graph)
+        #self.a_star.unvisited = copy(self.node_graph)
         search_index = 0
         if x_coordinate > 550 and y_coordinate > 220:
             search_index = len(self.node_graph) / 2

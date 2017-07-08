@@ -272,16 +272,20 @@ class Bullet(pygame.sprite.Sprite):
 
     def check_collision(self, wall_list):
 
-        for wall in wall_list:
-            if self.rect.colliderect(wall):
+        if self.rect.x < 0 or self.rect.x > 1116 or self.rect.y < 0 or self.rect.y > 444:
+            return True
+
+        for object in wall_list:
+            if self.rect.colliderect(object):
                 # print("Bullet colliding")
-                if isinstance(wall, Player):
-                    wall.hit_points -= 10
-                    wall.set_healthy()
+                if isinstance(object, Player):
+                    object.hit_points -= 10
+                    object.set_healthy()
                     # print(wall.hit_points)
                     # print(wall.healthy)
                     # print(wall.is_player_healthy())
                 return True
+
 
         return False
 
