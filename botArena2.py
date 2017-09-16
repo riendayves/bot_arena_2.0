@@ -159,13 +159,13 @@ while game_running:
     # Red Player Movement
     move = pygame.key.get_pressed()
     if move[pygame.K_a]:
-        red_player.move(-2, 0)
+        bullet_list.add(blue_player.shoot_left())
     if move[pygame.K_d]:
-        red_player.move(2, 0)
+        bullet_list.add(blue_player.shoot_right())
     if move[pygame.K_w]:
-        red_player.move(0, -2)
+        bullet_list.add(blue_player.shoot_up())
     if move[pygame.K_s]:
-        red_player.move(0, 2)
+        bullet_list.add(blue_player.shoot_down())
     if move[pygame.K_SPACE]:
         bullet_list.add(red_player.shoot_right())
 
