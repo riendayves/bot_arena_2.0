@@ -156,7 +156,7 @@ while game_running:
     if key[pygame.K_DOWN]:
         blue_player.move(0, 2)
 
-    # Red Player Movement
+    # Blue player shooting buttons
     move = pygame.key.get_pressed()
     if move[pygame.K_a]:
         bullet_list.add(blue_player.shoot_left())
